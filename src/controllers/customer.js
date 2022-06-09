@@ -28,14 +28,19 @@ const createCustomer = async (req, res) => {
 };
 
 const updateCustomer = async (req, res) => {
-  const id = Number(req.params.id);
-  const { name } = req.body;
+  const customerId = Number(req.params.id);
+  const { name, phone, email } = req.body;
 
   const updatedCustomer = await prisma.customer.update({
     where: {
-      id: id,
+      id: customerId,
     },
-    data: { name },
+    data: {
+      name,
+      contact: {
+        update: { phone, email },
+      },
+    },
   });
 
   res.json({ data: updatedCustomer });
