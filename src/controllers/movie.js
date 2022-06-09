@@ -1,8 +1,18 @@
 const prisma = require("../utils/prisma");
 
+const getMovie = async (req, res) => {
+  const createdMovies = await prisma.movie.findMany({
+    include: {
+      screenings: true,
+    },
+  });
+
+  res.json({ movies: createdMovies });
+};
+
 const getMovies = async (req, res) => {
   const id = Number(req.params.id);
-  const createdMovies = await prisma.movie.findMany({
+  const createdMovies = await prisma.movie.findUnique({
     where: {
       id: id,
     },
@@ -27,6 +37,7 @@ const addMovie = async (req, res) => {
 };
 
 module.exports = {
+  getMovie,
   getMovies,
   addMovie,
 };
