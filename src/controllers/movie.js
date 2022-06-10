@@ -2,12 +2,13 @@ const prisma = require("../utils/prisma");
 
 const getMovies = async (req, res) => {
   const requestQuery = req.query;
+  let createdMovies;
 
   // FILTERING MOVIES ACCORDING TO RUNTIME
   if (Object.keys(requestQuery).length > 0) {
     const maxRuntime = Number(requestQuery.runtimeMins.lte);
     const minRuntime = Number(requestQuery.runtimeMins.gte);
-    const filteredMovies = await prisma.movie.findMany({
+    createdMovies = await prisma.movie.findMany({
       where: {
         runtimeMins: {
           lte: maxRuntime,
@@ -15,16 +16,14 @@ const getMovies = async (req, res) => {
         },
       },
     });
-    res.json({ data: filteredMovies });
   } else {
-    const createdMovies = await prisma.movie.findMany({
+    createdMovies = await prisma.movie.findMany({
       include: {
         screenings: true,
       },
     });
-
-    res.json({ movies: createdMovies });
   }
+  res.json({ movies: createdMovies });
 };
 
 const getMovie = async (req, res) => {
@@ -43,8 +42,7 @@ const getMovie = async (req, res) => {
 
 const addMovie = async (req, res) => {
   const { title, runtimeMins, screenings } = req.body;
-  console.log("what's in body: ", req.body);
-
+  let createdMovie;
   const dupMovie = await prisma.movie.findFirst({
     where: {
       title,
@@ -57,7 +55,7 @@ const addMovie = async (req, res) => {
       .json({ status: "fail", message: "This movie already exists" });
 
   if (screenings) {
-    const createdMovie = await prisma.movie.create({
+    createdMovie = await prisma.movie.create({
       data: {
         title,
         runtimeMins,
@@ -69,9 +67,8 @@ const addMovie = async (req, res) => {
         screenings: true,
       },
     });
-    res.json({ data: createdMovie });
   } else {
-    const createdMovie = await prisma.movie.create({
+    createdMovie = await prisma.movie.create({
       data: {
         title,
         runtimeMins,
@@ -80,8 +77,8 @@ const addMovie = async (req, res) => {
         screenings: true,
       },
     });
-    res.json({ data: createdMovie });
   }
+  res.json({ data: createdMovie });
 };
 
 module.exports = {
