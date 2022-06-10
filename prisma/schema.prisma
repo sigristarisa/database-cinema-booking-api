@@ -57,6 +57,7 @@ model Screening {
   screenId    Int
   startsAt    DateTime
   createdAt   DateTime  @default(now())
+  
   updatedAt   DateTime  @updatedAt
 }
 

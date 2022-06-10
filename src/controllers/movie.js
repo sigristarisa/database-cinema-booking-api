@@ -27,10 +27,18 @@ const getMovies = async (req, res) => {
 };
 
 const getMovie = async (req, res) => {
-  const id = Number(req.params.id);
-  const createdMovies = await prisma.movie.findUnique({
+  let identifier = req.params.id;
+  const whereData = {};
+
+  if (identifier == Number(identifier)) {
+    whereData.id = Number(identifier);
+  } else {
+    whereData.title = identifier;
+  }
+
+  const createdMovies = await prisma.movie.findMany({
     where: {
-      id: id,
+      OR: [whereData],
     },
     include: {
       screenings: true,
@@ -51,7 +59,7 @@ const addMovie = async (req, res) => {
 
   if (dupMovie)
     return res
-      .status(404)
+      .status(400)
       .json({ status: "fail", message: "This movie already exists" });
 
   if (screenings) {
@@ -81,8 +89,39 @@ const addMovie = async (req, res) => {
   res.json({ data: createdMovie });
 };
 
+const updateMovie = async (req, res) => {
+  const movieId = Number(req.params.id);
+  const { title, runtimeMins, screenings } = req.body;
+
+  const updatedMovie = await prisma.movie.update({
+    where: {
+      id: movieId,
+    },
+    data: {
+      title,
+      runtimeMins,
+      screenings: {
+        update: screenings.map((screening) => {
+          return {
+            where: {
+              id: screening.id,
+            },
+            data: {
+              screenId: screening.screenId,
+              startsAt: screening.startsAt,
+            },
+          };
+        }),
+      },
+    },
+  });
+
+  res.json({ data: updatedMovie });
+};
+
 module.exports = {
   getMovies,
   getMovie,
   addMovie,
+  updateMovie,
 };
