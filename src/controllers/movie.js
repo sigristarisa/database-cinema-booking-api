@@ -45,6 +45,17 @@ const addMovie = async (req, res) => {
   const { title, runtimeMins, screenings } = req.body;
   console.log("what's in body: ", req.body);
 
+  const dupMovie = await prisma.movie.findFirst({
+    where: {
+      title,
+    },
+  });
+
+  if (dupMovie)
+    return res
+      .status(404)
+      .json({ status: "fail", message: "This movie already exists" });
+
   if (screenings) {
     const createdMovie = await prisma.movie.create({
       data: {
