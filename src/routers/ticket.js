@@ -1,8 +1,8 @@
 const express = require("express");
-const { addScreen } = require("../controllers/screen");
+const { addTicket } = require("../controllers/ticket");
 
 const router = express.Router();
 
-router.post("/", addScreen);
+router.post("/", addTicket);
 
 module.exports = router;
